@@ -177,20 +177,64 @@ ol {
   line-height: 1.3;
 }
 
-.look a {
+.look-actions {
+  display: flex;
+  flex: none;
+  gap: 0.45rem;
+}
+
+.look a,
+.look button {
   flex: none;
   color: var(--ink);
   background: #f4f8f3;
   text-decoration: none;
+  font: inherit;
   font-weight: 700;
   padding: 0.4rem 0.8rem;
+  border: 0;
   border-radius: 999px;
+  cursor: pointer;
+}
+
+.look button {
+  color: #3d3208;
+  background: #e3b423;
+}
+
+.look button[aria-pressed="true"] {
+  color: var(--ink);
+  background: #f4f8f3;
 }
 
 .look a:focus-visible,
+.look button:focus-visible,
 .base-switch button:focus-visible {
   outline: 2px solid #f4f8f3;
   outline-offset: 2px;
+}
+
+.me {
+  background: transparent;
+  border: 0;
+  pointer-events: none;
+}
+
+.me span {
+  display: block;
+  width: 18px;
+  height: 18px;
+  margin: 7px;
+  border-radius: 50%;
+  background: #12315f;
+  border: 5px solid #e3b423;
+  box-shadow: 0 0 0 3px #fffef8, 0 0 0 0 rgba(227, 180, 35, 0.75);
+  animation: here 1.6s ease-out infinite;
+}
+
+@keyframes here {
+  70% { box-shadow: 0 0 0 3px #fffef8, 0 0 0 22px rgba(227, 180, 35, 0); }
+  100% { box-shadow: 0 0 0 3px #fffef8, 0 0 0 0 rgba(227, 180, 35, 0); }
 }
 
 .base-switch {
@@ -316,6 +360,7 @@ ol {
     gap: 0.45rem;
     padding: 0.55rem 0.75rem calc(0.55rem + env(safe-area-inset-bottom));
   }
-  .look a { text-align: center; padding: 0.7rem 0.8rem; }
+  .look-actions { flex-direction: column; }
+  .look a, .look button { text-align: center; padding: 0.7rem 0.8rem; }
   .sheet { border-right: 0; border-top: 1px solid var(--line); }
 }

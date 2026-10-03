@@ -71,6 +71,101 @@ lookLink.addEventListener("click", () => {
   streetOpen = true;
 });
 
+const locateButton = document.getElementById("locate");
+let watchId = null;
+let meMarker = null;
+let meCircle = null;
+let jumpToMe = false;
+
+function meIcon() {
+  return L.divIcon({
+    className: "me",
+    html: "<span></span>",
+    iconSize: [46, 46],
+    iconAnchor: [23, 23],
+  });
+}
+
+function setLocate(text, on) {
+  locateButton.textContent = text;
+  locateButton.setAttribute("aria-pressed", on ? "true" : "false");
+}
+
+function showMe(lat, lon, accuracy) {
+  const latlng = [lat, lon];
+  const radius = Math.max(accuracy || 30, 8);
+  if (!meMarker) {
+    meCircle = L.circle(latlng, {
+      radius: radius,
+      color: "#e3b423",
+      weight: 2,
+      fillColor: "#e3b423",
+      fillOpacity: 0.16,
+      interactive: false,
+    }).addTo(map);
+    meMarker = L.marker(latlng, {
+      icon: meIcon(),
+      zIndexOffset: 900,
+      interactive: false,
+      keyboard: false,
+    }).addTo(map);
+  } else {
+    meCircle.setLatLng(latlng);
+    meCircle.setRadius(radius);
+    meMarker.setLatLng(latlng);
+  }
+  if (jumpToMe) {
+    map.setView(latlng, Math.max(map.getZoom(), accuracy > 80 ? 16 : 18));
+    jumpToMe = false;
+  }
+}
+
+function startLocate(jump) {
+  if (!navigator.geolocation) {
+    setLocate("No location", false);
+    return;
+  }
+  jumpToMe = jump;
+  if (watchId != null) {
+    if (jump && meMarker) {
+      map.setView(meMarker.getLatLng(), Math.max(map.getZoom(), 17));
+      jumpToMe = false;
+    }
+    return;
+  }
+  setLocate("Finding you", false);
+  watchId = navigator.geolocation.watchPosition((pos) => {
+    showMe(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
+    setLocate("You are here", true);
+  }, (err) => {
+    if (err.code === 1) {
+      if (watchId != null) navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+      jumpToMe = false;
+      setLocate("Allow location", false);
+      return;
+    }
+    if (!meMarker) setLocate("Try again", false);
+  }, {
+    enableHighAccuracy: true,
+    maximumAge: 3000,
+    timeout: 20000,
+  });
+}
+
+locateButton.addEventListener("click", () => startLocate(true));
+
+function resumeLocate() {
+  if (!navigator.geolocation) return;
+  if (!navigator.permissions || !navigator.permissions.query) {
+    startLocate(false);
+    return;
+  }
+  navigator.permissions.query({ name: "geolocation" }).then((result) => {
+    if (result.state === "granted") startLocate(false);
+  }).catch(() => startLocate(false));
+}
+
 const layers = {
   boxes: L.layerGroup().addTo(map),
   roads: L.layerGroup().addTo(map),
@@ -273,6 +368,8 @@ map.on("popupopen", (event) => {
     streetOpen = true;
   });
 });
+
+resumeLocate();
 
 document.querySelectorAll(".filters input").forEach((input) => {
   input.addEventListener("change", () => {
