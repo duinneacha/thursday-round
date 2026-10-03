@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Thursday round</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,560&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="app.css?v=3">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <p class="round-name">Thursday round</p>
+      <h1>Where the boxes are</h1>
+    </div>
+    <div class="filters" role="group" aria-label="What to show">
+      <label><input type="checkbox" data-layer="boxes" checked> Boxes</label>
+      <label><input type="checkbox" data-layer="roads" checked> Road marks</label>
+      <label><input type="checkbox" data-layer="taps" checked> Other taps</label>
+      <label><input type="checkbox" data-layer="mapped" checked> Mapped boxes</label>
+      <label><input type="checkbox" data-layer="track" checked> The drive</label>
+    </div>
+  </header>
+  <div class="frame">
+    <aside class="sheet" id="sheet">
+      <section>
+        <h2>Placed on the map</h2>
+        <ol id="box-list"></ol>
+      </section>
+      <section>
+        <h2>Still only a name</h2>
+        <p class="lede">These are on the key list. I have not given them a box tag, because the nearby taps may be the road.</p>
+        <ol id="open-list"></ol>
+      </section>
+    </aside>
+    <div class="stage">
+      <div id="map"></div>
+      <div class="look" id="look">
+        <p id="look-name">Pick a box, or click the map, to stand at that corner.</p>
+        <a id="look-link" hidden target="round-street" rel="noopener">Open street view</a>
+      </div>
+    </div>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="route-data.js"></script>
+  <script src="app.js?v=3"></script>
+</body>
+</html>
