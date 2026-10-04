@@ -233,14 +233,30 @@ function selectRow(id) {
   if (row) row.scrollIntoView({ block: "nearest" });
 }
 
+let pendingPopup = null;
+
 function openMarker(id) {
-  const marker = byId.get(id);
-  if (!marker) return;
+  if (pendingPopup) {
+    map.off("moveend", pendingPopup);
+    pendingPopup = null;
+  }
   selectRow(id);
+  const marker = byId.get(id);
   const row = document.querySelector(`.row[data-id="${id}"] .name`);
+  const title = row ? row.textContent : "This stop";
+  if (!marker) {
+    map.closePopup();
+    lookName.textContent = title + " has no GPS on the list.";
+    lookLink.hidden = true;
+    return;
+  }
   const ll = marker.getLatLng();
-  showLook(ll.lat, ll.lng, row ? row.textContent : "This corner");
-  const show = () => marker.openPopup();
+  showLook(ll.lat, ll.lng, title);
+  const show = () => {
+    pendingPopup = null;
+    marker.openPopup();
+  };
+  pendingPopup = show;
   map.once("moveend", show);
   map.setView(marker.getLatLng(), 18, { animate: true });
 }
@@ -260,15 +276,18 @@ function addRow(list, item, id) {
 }
 
 function draw(data) {
-    const casing = L.polyline(data.track, { color: "#f4f7f2", weight: 7, opacity: 0.9 });
-    const line = L.polyline(data.track, {
-      color: "#1e4d6b",
-      weight: 4,
-      opacity: 0.95,
-    });
-    line.bindPopup(popup("Thursday drive", "The road from your phone, 15:33 to 18:25. This is the path, not the boxes."));
-    layers.track.addLayer(casing);
-    layers.track.addLayer(line);
+    const track = data.track || [];
+    if (track.length > 1) {
+      const casing = L.polyline(track, { color: "#f4f7f2", weight: 7, opacity: 0.9 });
+      const line = L.polyline(track, {
+        color: "#1e4d6b",
+        weight: 4,
+        opacity: 0.95,
+      });
+      line.bindPopup(popup("Thursday drive", "The road from your phone, 15:33 to 18:25. This is the path, not the boxes."));
+      layers.track.addLayer(casing);
+      layers.track.addLayer(line);
+    }
 
     const boxList = document.getElementById("box-list");
     const groups = [];
@@ -335,21 +354,26 @@ function draw(data) {
     });
 
     const openList = document.getElementById("open-list");
-    data.unplaced.forEach((item) => {
+    (data.unplaced || []).forEach((item) => {
       const id = "open-" + item.n;
-      const marker = L.marker([item.lat, item.lon], {
-        icon: dotIcon(),
-        opacity: 0,
-        interactive: false,
-      });
-      marker.bindPopup(popup(item.n + "  " + item.name, item.hint + " This name is not pinned as a box.", item.lat, item.lon));
-      layers.taps.addLayer(marker);
-      byId.set(id, marker);
       item.unplaced = true;
+      if (item.lat != null && item.lon != null) {
+        const marker = L.marker([item.lat, item.lon], {
+          icon: dotIcon(),
+          opacity: 0,
+          interactive: false,
+        });
+        marker.bindPopup(popup(item.n + "  " + item.name, item.hint + " This name is not pinned as a box.", item.lat, item.lon));
+        layers.taps.addLayer(marker);
+        byId.set(id, marker);
+      }
       addRow(openList, item, id);
     });
 
-    map.fitBounds(line.getBounds(), { padding: [24, 24] });
+    const points = (data.boxes || [])
+      .filter((box) => box.lat != null && box.lon != null)
+      .map((box) => [box.lat, box.lon]);
+    if (points.length) map.fitBounds(points, { padding: [28, 28] });
     requestAnimationFrame(() => map.invalidateSize());
 }
 
