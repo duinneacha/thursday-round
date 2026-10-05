@@ -182,6 +182,16 @@
       "detail": "51.8913705, -8.4267642"
     },
     {
+      "n": "19",
+      "name": "Church Rd Box",
+      "key": "313 (long)",
+      "lat": 51.8890133,
+      "lon": -8.4161693,
+      "time": "",
+      "sure": true,
+      "detail": "51.8890133, -8.4161693"
+    },
+    {
       "n": "20",
       "name": "Blackrock Rd P.O. + P.B.",
       "key": "132",
@@ -295,12 +305,5 @@
   "roads": [],
   "taps": [],
   "mapped": [],
-  "unplaced": [
-    {
-      "n": "19",
-      "name": "Church Rd Box",
-      "key": "313 (long)",
-      "hint": "No GPS on the list yet."
-    }
-  ]
+  "unplaced": []
 }

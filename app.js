@@ -354,6 +354,8 @@ function draw(data) {
     });
 
     const openList = document.getElementById("open-list");
+    const openSection = openList.closest("section");
+    if (!data.unplaced || !data.unplaced.length) openSection.hidden = true;
     (data.unplaced || []).forEach((item) => {
       const id = "open-" + item.n;
       item.unplaced = true;
